@@ -169,12 +169,24 @@ export function Tasks(props) {
     hooks.visibleColumns.push((columns) => [
       ...columns,
       {
+        id: "Status",
+        Header: "Status",
+        Cell: ({ value, row }) => (
+          <AddTaskText onClick={() => {
+          }}>
+            {getStatusStringByDueDate(row.values.due_date)}
+          </AddTaskText>
+        ),
+      },
+      {
         id: "Edit",
         Header: "Edit",
         Cell: ({ row }) => (
           <Button onClick={() => {
             let updated_text = prompt("Update Task: <name>, <description>, <due_date>", `${row.values.name}, ${row.values.description}, ${row.values.due_date}`)
-            handleUpdateTask(row.values.ID, updated_text);
+            if (updated_text != null) {
+              handleUpdateTask(row.values.ID, updated_text);
+            }
           }}>
             Edit
           </Button>
@@ -245,23 +257,37 @@ export function Tasks(props) {
   const handleAddTask = event => {
     addTask()
     .then((response) =>{
-      
+      resetAddTaskFields();
+      setRefreshKey(refreshKey+1);
     });
-    resetAddTaskFields();
-    setRefreshKey(refreshKey+1);
   }
 
   const handleUpdateTask = (taskId, updated_task) => {
     console.log(updated_task)
     let split_text = updated_task.split(",");
-            alert(split_text[0]);
-            alert(split_text[1]);
-            alert(split_text[2]);
-            alert(taskId);
     updateTask(taskId, split_text[0], split_text[1], split_text[2])
     .then((response) => {
       setRefreshKey(refreshKey+1);
     });
+  }
+
+  const getStatusStringByDueDate = (dueDateString) => {
+    let date = new Date(dueDateString);
+    let currentDate = new Date();
+    let dayDiff = dateDifference(currentDate, date);
+    if (dayDiff >= 7) {
+      return "Not Expired";
+    }
+    if (dayDiff < 7 && dayDiff > 0) {
+      return "Due soon";
+    }
+    return "Overdue";
+  }
+
+  const dateDifference = (date1, date2) => {
+    var diff = date2.getTime() - date1.getTime();
+    var daydiff = diff / (1000 * 60 * 60 * 24);
+    return daydiff;
   }
 
   useEffect(() => {
@@ -284,7 +310,7 @@ export function Tasks(props) {
           onChange={handleDescription} placeholder={`Description`}
         />
         <Input
-          onChange={handleDueDate} placeholder={`Due Date`}
+          onChange={handleDueDate} placeholder={`Due Date YYYY-MM-DD`}
         />
         <AddTaskButton onClick={handleAddTask}>Add Task</AddTaskButton>
       </AddTaskContainer>
