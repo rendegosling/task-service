@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, setState } from "react";
 import { useGlobalFilter, useSortBy, useTable } from "react-table";
 import tw from "twin.macro";
 import { GlobalFilter } from "./globalFilter";
@@ -16,12 +16,12 @@ const TableHead = tw.thead`
 
 const TableRow = tw.tr`
 border
-border-green-500
+border-blue-500
 `;
 
 const TableHeader = tw.th`
 border
-border-green-500
+border-blue-500
 p-2
 `;
 
@@ -31,7 +31,7 @@ const TableBody = tw.tbody`
 
 const TableData = tw.td`
 border
-border-green-500
+border-blue-500
 p-5
 `;
 
@@ -42,17 +42,54 @@ const Button = tw.button`
   pb-2
   text-black
   rounded-md
-  bg-green-300
-  hover:bg-green-200
+  bg-blue-300
+  hover:bg-blue-200
+  transition-colors
+`;
+
+const AddTaskContainer = tw.div`
+  mb-6
+  mt-6
+  flex
+  items-center
+`;
+
+const AddTaskText = tw.h2`
+  text-xl
+text-gray-600
+  mr-6
+`;
+
+const Input = tw.input`
+  h-8
+  border-2
+  border-solid
+  border-blue-500
+  outline-none
+  p-4
+  rounded-lg
+  mr-6
+`;
+
+const AddTaskButton = tw.button`
+  pl-4
+  pr-4
+  pt-2
+  pb-2
+  text-black
+  rounded-md
+  bg-blue-300
+  hover:bg-blue-200
   transition-colors
 `;
 
 export function Tasks(props) {
   const [tasks, setTasks] = useState([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchTasks = async () => {
     const response = await axios
-      .get("http://localhost:3003/tasks")
+      .get("http://localhost:1337/tasks/get")
       .catch((err) => console.log(err));
 
     if (response) {
@@ -139,7 +176,10 @@ export function Tasks(props) {
         id: "Edit",
         Header: "Edit",
         Cell: ({ row }) => (
-          <Button onClick={() => alert("Editing: " + row.values.price)}>
+          <Button onClick={() => {
+            let updated_text = prompt("Update Task: <name>, <description>, <due_date>", `${row.values.name}, ${row.values.description}, ${row.values.due_date}`)
+            handleUpdateTask(row.values.ID, updated_text);
+          }}>
             Edit
           </Button>
         ),
@@ -168,11 +208,69 @@ export function Tasks(props) {
     state,
   } = tableInstance;
 
+  const isEven = (idx) => idx % 2 === 0;
+
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const handleName = event => {
+    setName(event.target.value);
+  };
+  const handleDescription = event => {
+      setDescription(event.target.value);
+  };
+  const handleDueDate = event => {
+      setDueDate(event.target.value);
+  };
+  const resetAddTaskFields = () => {
+    setName("");
+    setDescription("");
+    setDueDate("");
+  };
+
+  const addTask = async () => {
+    const response = await axios.post("http://localhost:1337/tasks/create", {
+      name: name,
+      description: description,
+      due_date: dueDate
+    });
+    return response;
+  }
+
+  const updateTask = async (taskId, name, description, dueDate) => {
+    const response = await axios.put(`http://localhost:1337/tasks/update/${taskId}`, {
+      name: name,
+      description: description,
+      due_date: dueDate
+    });
+    return response;
+  }
+
+  const handleAddTask = event => {
+    addTask()
+    .then((response) =>{
+      
+    });
+    resetAddTaskFields();
+    setRefreshKey(refreshKey+1);
+  }
+
+  const handleUpdateTask = (taskId, updated_task) => {
+    console.log(updated_task)
+    let split_text = updated_task.split(",");
+            alert(split_text[0]);
+            alert(split_text[1]);
+            alert(split_text[2]);
+            alert(taskId);
+    updateTask(taskId, split_text[0], split_text[1], split_text[2])
+    .then((response) => {
+      setRefreshKey(refreshKey+1);
+    });
+  }
+
   useEffect(() => {
     fetchTasks();
-  }, []);
-
-  const isEven = (idx) => idx % 2 === 0;
+  }, [refreshKey]);
 
   return (
     <>
@@ -181,6 +279,19 @@ export function Tasks(props) {
         setGlobalFilter={setGlobalFilter}
         globalFilter={state.globalFilter}
       />
+      <AddTaskContainer>
+        <AddTaskText>Add Task:</AddTaskText>
+        <Input
+          onChange={handleName} placeholder={`Name`}
+        />
+        <Input
+          onChange={handleDescription} placeholder={`Description`}
+        />
+        <Input
+          onChange={handleDueDate} placeholder={`Due Date`}
+        />
+        <AddTaskButton onClick={handleAddTask}>Add Task</AddTaskButton>
+      </AddTaskContainer>
       <Table {...getTableProps()}>
         <TableHead>
           {headerGroups.map((headerGroup) => (
@@ -203,7 +314,7 @@ export function Tasks(props) {
             return (
               <TableRow
                 {...row.getRowProps()}
-                className={isEven(idx) ? "bg-green-400 bg-opacity-30" : ""}
+                className={isEven(idx) ? "bg-blue-400 bg-opacity-30" : ""}
               >
                 {row.cells.map((cell, idx) => (
                   <TableData {...cell.getCellProps()}>
@@ -215,6 +326,13 @@ export function Tasks(props) {
           })}
         </TableBody>
       </Table>
+      <div>
+        <div className="flex justify center">
+          <div className="flex cursor-pointer justify-center w-1/3 bg-blue-400 p-4 m-6 rounder-md">
+
+          </div>
+        </div>
+      </div>
     </>
   );
 }

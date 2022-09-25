@@ -19,7 +19,7 @@ const Input = tw.input`
   h-8
   border-2
   border-solid
-  border-green-500
+  border-blue-500
   outline-none
   p-4
   rounded-lg
