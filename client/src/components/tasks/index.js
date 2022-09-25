@@ -139,10 +139,6 @@ export function Tasks(props) {
       {
         Header: "Due Date",
         accessor: "due_date"
-      },
-      {
-        Header: "Status",
-        accessor: "status"
       }
     ],
     []
