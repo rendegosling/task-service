@@ -1,0 +1,215 @@
+openapi: 3.0.0
+servers: []
+info:
+  description: This is a simple API
+  version: "1.0.0"
+  title: Simple Task Service API
+  contact:
+    email: renlesterdeguzman@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: microservice
+    description: Operations available in the main task microservice
+  - name: backend for frontends
+    description: Operations available for the web client of task service
+paths:
+  /tasks:
+    get:
+      tags:
+        - microservice
+      summary: read all tasks
+      operationId: readalltasks
+      description: |
+        Main API for fetching all tasks available in the system
+      parameters:
+        - in: query
+          name: searchString
+          description: pass an optional search string for looking up tasks
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 50
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '400':
+          description: bad input parameter
+    post:
+      tags:
+        - microservice
+      summary: adds a task item
+      operationId: addTask
+      description: Adds a task to the system
+      responses:
+        '201':
+          description: task created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: Task to add
+  /tasks/:taskId:
+    put:
+      tags:
+        - microservice
+      summary: updates a task item
+      operationId: addTask
+      description: Adds a task to the system
+      responses:
+        '201':
+          description: task created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: Task to add
+  /tasks/create:
+    post:
+      tags:
+        - backend for frontends
+      summary: adds a task item
+      operationId: addTask
+      description: Adds a task to the system
+      responses:
+        '201':
+          description: task created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: Task to add
+  /tasks/get:
+    get:
+      tags:
+        - backend for frontends
+      summary: read all tasks
+      operationId: readalltasks
+      description: |
+        Main API for fetching all tasks available in the system
+      parameters:
+        - in: query
+          name: searchString
+          description: pass an optional search string for looking up tasks
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            maximum: 50
+      responses:
+        '200':
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '400':
+          description: bad input parameter
+  tasks/update/:taskId:
+    put:
+      tags:
+        - backend for frontends
+      summary: updates a task item
+      operationId: addTask
+      description: Adds a task to the system
+      responses:
+        '201':
+          description: task created
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: Task to add
+    
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - name
+        - description
+        - due_date
+      properties:
+        id:
+          type: number
+          format: integer
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Create task
+        description:
+          type: string
+          format: string
+          example: 'General task'
+        due_date:
+          type: string
+          format: YYYY-MM-DD
+          example: '2022-09-25'
+        created_at:
+          type: string
+          format: date-time
+          example: '2022-09-25T15:53:04.806491+08:00'
+        updated_at:
+          type: string
+          format: date-time
+          example: '2022-09-25T15:53:04.806491+08:00'
+        deleted_at:
+          type: string
+          format: date-time
+          example: '2022-09-25T15:53:04.806491+08:00'
