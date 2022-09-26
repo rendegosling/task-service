@@ -3,6 +3,7 @@ import { ITaskService } from "../service/TaskService";
 import axios from 'axios';
 import { response } from "express";
 import Logging from "../library/Logging";
+import { config } from "../config/config";
 
 export interface ITaskRepository {
     createTask(task: ITask): any;
@@ -17,7 +18,7 @@ export class TaskRepository implements ITaskRepository {
     }
 
     public async createTask(task: ITask) {
-        return axios.post('http://localhost:3003/tasks', {
+        return axios.post(`${config.microservice.url}/tasks`, {
             name: task.name,
             description: task.description,
             due_date: task.dueDate
@@ -29,7 +30,7 @@ export class TaskRepository implements ITaskRepository {
     }
 
     public async updateTask(id: string, task: ITask) {
-        return axios.put(`http://localhost:3003/tasks/${id}`, {
+        return axios.put(`${config.microservice.url}/tasks/${id}`, {
             name: task.name,
             description: task.description,
             due_date: task.dueDate
@@ -42,7 +43,7 @@ export class TaskRepository implements ITaskRepository {
     
     public async readAllTasks(): Promise<any> {
         return axios.get<ITask[]>('/tasks', {
-            baseURL: 'http://localhost:3003'
+            baseURL: `${config.microservice.url}`
         }).then(res => {
             Logging.info(res.data);
             Logging.info(res.status);
