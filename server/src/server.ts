@@ -7,7 +7,7 @@ import taskRoutes from './routes/Task';
 
 const router = express();
 
-/** Connec Mongo */
+/** Connect Mongo */
 mongoose.connect(config.mongo.url, { retryWrites: true, w: 'majority' })
 .then(() => { 
     Logging.info('Connected to mongoDB')

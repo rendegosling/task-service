@@ -60,6 +60,12 @@ text-gray-600
   mr-6
 `;
 
+const CellText = tw.h2`
+  text-xl
+text-gray-600
+  mr-6
+`;
+
 const Input = tw.input`
   h-8
   border-2
@@ -144,21 +150,15 @@ export function Tasks(props) {
     []
   );
 
+  // data in use state from API
   const tasksData = useMemo(() => [...tasks], [tasks]);
 
+  // dynamic columns from the APIs
   const tasksColumns = useMemo(
     () =>
       tasks[0]
         ? Object.keys(tasks[0])
             .map((key) => {
-            //   if (key === "image")
-            //     return {
-            //       Header: key,
-            //       accessor: key,
-            //       Cell: ({ value }) => <img src={value} />,
-            //       maxWidth: 70,
-            //     };
-
               return { Header: key, accessor: key };
             })
         : [],
@@ -172,10 +172,10 @@ export function Tasks(props) {
         id: "Status",
         Header: "Status",
         Cell: ({ value, row }) => (
-          <AddTaskText onClick={() => {
+          <CellText onClick={() => {
           }}>
             {getStatusStringByDueDate(row.values.due_date)}
-          </AddTaskText>
+          </CellText>
         ),
       },
       {
@@ -216,6 +216,7 @@ export function Tasks(props) {
     state,
   } = tableInstance;
 
+  // get even rows for alternating row colors
   const isEven = (idx) => idx % 2 === 0;
 
   const [name, setName] = useState("");
@@ -276,7 +277,7 @@ export function Tasks(props) {
     let currentDate = new Date();
     let dayDiff = dateDifference(currentDate, date);
     if (dayDiff >= 7) {
-      return "Not Expired";
+      return "Not Urgent";
     }
     if (dayDiff < 7 && dayDiff > 0) {
       return "Due soon";
@@ -348,13 +349,6 @@ export function Tasks(props) {
           })}
         </TableBody>
       </Table>
-      <div>
-        <div className="flex justify center">
-          <div className="flex cursor-pointer justify-center w-1/3 bg-blue-400 p-4 m-6 rounder-md">
-
-          </div>
-        </div>
-      </div>
     </>
   );
 }
